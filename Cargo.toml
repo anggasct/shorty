@@ -1,0 +1,10 @@
+[package]
+name = "shorty"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.3", features = ["derive"] }
+dirs = "5.0.1"
+anyhow = "1.0"
+
