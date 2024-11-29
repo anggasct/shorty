@@ -1,0 +1,38 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - run: cargo build --release && strip target/release/shorty && mv target/release/shorty target/release/shorty-linux
+    - name: Release Linux
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/release/shorty-linux
+        token: ${{ secrets.GH_TOKEN }}
+
+  build-mac:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: x86_64-apple-darwin
+    - run: cargo build --release && strip target/release/shorty && mv target/release/shorty target/release/shorty-macos
+    - name: Release Mac
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/release/shorty-macos
+        token: ${{ secrets.GH_TOKEN }}
+
