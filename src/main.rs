@@ -14,22 +14,29 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Add a new alias
     Add {
         alias: String,
         command: String,
-        #[arg(short, long)]
+        #[arg(short, long, help = "Add a note to the alias")]
         note: Option<String>,
-        #[arg(short, long, num_args = 1.., use_value_delimiter = true)]
+        #[arg(short, long, num_args = 1.., use_value_delimiter = true, help = "Add tags to the alias")]
         tags: Vec<String>,
     },
+    /// List all aliases
     #[command(alias = "ls")]
     List {
-        #[arg(short, long)]
-        tag: Option<String>, 
+        #[arg(short, long, help = "Filter aliases by tag")]
+        tag: Option<String>,
     },
+    /// Remove an alias
     #[command(alias = "rm")]
     Remove {
         alias: String,
+    },
+    /// Search aliases
+    Search {
+        keyword: String,
     },
 }
 
@@ -46,6 +53,7 @@ fn main() -> anyhow::Result<()> {
             }
         },
         Commands::Remove { alias } => remove_alias(alias)?,
+        Commands::Search { keyword } => search_aliases(keyword)?,
     }
 
     Ok(())
@@ -110,6 +118,27 @@ fn remove_alias(alias: &str) -> anyhow::Result<()> {
         .join("\n");
     fs::write(&aliases_path, new_contents)?;
     println!("Removed alias: {}", alias);
+
+    Ok(())
+}
+
+fn search_aliases(query: &str) -> anyhow::Result<()> {
+    let aliases_path = get_aliases_path();
+    let contents = fs::read_to_string(&aliases_path)?;
+    
+    let results: Vec<&str> = contents
+        .lines()
+        .filter(|line| line.contains(query)) 
+        .collect();
+
+    if results.is_empty() {
+        println!("No aliases found matching: {}", query);
+    } else {
+        println!("Search results for '{}':", query);
+        for line in results {
+            println!("{}", line);
+        }
+    }
 
     Ok(())
 }
