@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "shorty")]
-#[command(about = "Manage your shell aliases", version = "1.0")]
+#[command(about = "Manage your shell aliases", version = "1.0.0")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -14,16 +14,20 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Add a new alias
     Add {
         alias: String,
         command: String,
         #[arg(short, long)]
         note: Option<String>,
+        #[arg(short, long, num_args = 1.., use_value_delimiter = true)]
+        tags: Vec<String>,
     },
-    /// List all aliases
-    List,
-    /// Remove an alias
+    #[command(alias = "ls")]
+    List {
+        #[arg(short, long)]
+        tag: Option<String>, 
+    },
+    #[command(alias = "rm")]
     Remove {
         alias: String,
     },
@@ -33,33 +37,65 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Add { alias, command, note } => add_alias(alias, command, note)?,
-        Commands::List => list_aliases()?,
+        Commands::Add { alias, command, note, tags } => add_alias(alias, command, note, tags)?,
+        Commands::List { tag } => {
+            if let Some(tag) = tag {
+                filter_aliases_by_tag(tag)?
+            } else {
+                list_aliases()?
+            }
+        },
         Commands::Remove { alias } => remove_alias(alias)?,
     }
 
     Ok(())
 }
 
-fn add_alias(alias: &str, command: &str, note: &Option<String>) -> anyhow::Result<()> {
+fn add_alias(alias: &str, command: &str, note: &Option<String>, tags: &[String]) -> anyhow::Result<()> {
     let aliases_path = get_aliases_path();
     let mut file = fs::OpenOptions::new()
         .create(true)
         .append(true)
         .open(&aliases_path)?;
 
+    let tags_str = if tags.is_empty() {
+        String::new()
+    } else {
+        format!(" #tags:{}", tags.join(","))
+    };
+
     let note_comment = note.as_ref().map(|n| format!(" # {}", n)).unwrap_or_default();
-    writeln!(file, "alias {}='{}'{}", alias, command, note_comment)?;
+    writeln!(file, "alias {}='{}'{}{}", alias, command, note_comment, tags_str)?;
     println!("Added alias: {} -> {}", alias, command);
     println!("To apply the changes, please restart your terminal!");
 
     Ok(())
 }
 
+
 fn list_aliases() -> anyhow::Result<()> {
     let aliases_path = get_aliases_path();
     let contents = fs::read_to_string(&aliases_path)?;
     println!("{}", contents);
+
+    Ok(())
+}
+
+fn filter_aliases_by_tag(tag: &str) -> anyhow::Result<()> {
+    let aliases_path = get_aliases_path();
+    let contents = fs::read_to_string(&aliases_path)?;
+    let filtered: Vec<&str> = contents
+        .lines()
+        .filter(|line| line.contains(&format!("#tags:{}", tag)))
+        .collect();
+
+    if filtered.is_empty() {
+        println!("No aliases found with tag: {}", tag);
+    } else {
+        for alias in filtered {
+            println!("{}", alias);
+        }
+    }
 
     Ok(())
 }
