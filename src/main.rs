@@ -1,11 +1,11 @@
 use clap::{Parser, Subcommand};
 use std::fs;
-use std::io::{self, BufRead, Read, Write};
+use std::io::{self, BufRead, Write};
 use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "shorty")]
-#[command(about = "Manage your shell aliases", version = "1.0.0")]
+#[command(about = "Manage your shell aliases", version = "1.1.0")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,

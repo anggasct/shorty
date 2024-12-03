@@ -19,7 +19,7 @@ case "$OS_TYPE" in
 esac
 
 GITHUB_REPO="https://github.com/anggasct/shorty"
-SHORTY_VERSION="v1.0.0"
+SHORTY_VERSION="v1.1.0"
 BINARY_URL="$GITHUB_REPO/releases/download/$SHORTY_VERSION/$FILE_NAME"
 
 echo "Downloading shorty from $BINARY_URL..."
