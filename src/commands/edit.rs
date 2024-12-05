@@ -17,13 +17,30 @@ pub fn edit_alias(
     for line in contents.lines() {
         if line.starts_with(&format!("alias {}=", alias)) {
             alias_found = true;
-            let tags_str = if new_tags.is_empty() {
-                String::new()
+
+            let existing_note = line.split('#').nth(1).map(|s| s.trim().to_string()).unwrap_or_default();
+            let existing_tags = line.split('#').nth(2).map(|s| s.trim().to_string()).unwrap_or_default();
+
+            let note_comment = if let Some(note) = new_note {
+                format!(" # {}", note)
             } else {
-                format!(" #tags:{}", new_tags.join(","))
+                if !existing_note.is_empty() {
+                    format!(" # {}", existing_note)
+                } else {
+                    String::new()
+                }
             };
 
-            let note_comment = new_note.as_ref().map(|n| format!(" # {}", n)).unwrap_or_default();
+            let tags_str = if !new_tags.is_empty() {
+                format!(" #tags:{}", new_tags.join(","))
+            } else {
+                if !existing_tags.is_empty() {
+                    format!(" #tags:{}", existing_tags)
+                } else {
+                    String::new()
+                }
+            };
+
             new_contents.push(format!("alias {}='{}'{}{}", alias, new_command, note_comment, tags_str));
         } else {
             new_contents.push(line.to_string());

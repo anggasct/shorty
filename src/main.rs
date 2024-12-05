@@ -14,7 +14,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "shorty")]
-#[command(about = "Manage your shell aliases", version = "1.1.0")]
+#[command(about = "Manage your shell aliases", version = env!("CARGO_PKG_VERSION"))]
 struct Cli {
     #[command(subcommand)]
     command: Commands,

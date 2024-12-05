@@ -1,12 +1,20 @@
 use std::fs;
 use std::io::{self, BufRead, Write};
 use std::path::PathBuf;
+use std::process::Command;
 
 pub fn uninstall() -> anyhow::Result<()> {
     let binary_path = PathBuf::from("/usr/local/bin/shorty");
     if binary_path.exists() {
-        fs::remove_file(&binary_path)?;
-        println!("Removed shorty binary from /usr/local/bin.");
+        let status = Command::new("sudo")
+            .arg("rm")
+            .arg(&binary_path)
+            .status()?;
+        if status.success() {
+            println!("Removed shorty binary from /usr/local/bin.");
+        } else {
+            println!("Failed to remove shorty binary from /usr/local/bin.");
+        }
     } else {
         println!("shorty binary not found in /usr/local/bin.");
     }
