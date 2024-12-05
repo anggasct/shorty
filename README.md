@@ -1,13 +1,14 @@
 # Shorty
 
-Shorty is a simple command-line tool to manage shell aliases. You can add, list, and remove aliases easily, while keeping them organized in a file named `.shorty_aliases` in your home directory.
+Shorty is a simple command-line tool to manage shell aliases. You can add, list, search, edit, and remove aliases easily, while keeping them organized in a file named `.shorty_aliases` in your home directory.
 
 ## Features
 
 - **Add Alias**: Create new aliases with optional notes.
 - **List Aliases**: View all current aliases.
-- **Remove Alias**: Delete an existing alias from the list.
 - **Search Alias**: Search for aliases.
+- **Edit Alias**: Modify an existing alias.
+- **Remove Alias**: Delete an existing alias from the list.
 
 ## Installation
 
@@ -28,13 +29,13 @@ Once installed, you can use `shorty` from the command line.
 To add a new alias:
 
 ```bash
-shorty add <alias> <command> [--note <note>] [--tag <tag>]
+shorty add <alias> <command> [--note <note>] [--tags <tags>]
 ```
 
 - `<alias>`: The alias name you want to create.
 - `<command>`: The command that the alias should execute.
 - `--note <note>`: (Optional) Add a note to your alias.
-- `--tag <tag>`: (Optional) Add a tag to your alias.
+- `--tags <tags>`: (Optional) Add a tags to your alias.
 
 Example:
 
@@ -49,30 +50,12 @@ This will add the alias `gs` for `git status` with a note "Alias for git status"
 To list all the aliases stored in `.shorty_aliases`:
 
 ```bash
-shorty list [--tag <tag>]
+shorty list [--tags <tags>]
 ```
 
-- `--tag <tag>`: (Optional) Filter aliases by tag.
+- `--tags <tags>`: (Optional) Filter aliases by tags.
 
 This will print all the aliases currently saved in the file.
-
-### Remove an Alias
-
-To remove an alias:
-
-```bash
-shorty remove <alias>
-```
-
-- `<alias>`: The alias you want to remove.
-
-Example:
-
-```bash
-shorty remove gs
-```
-
-This will remove the alias `gs` from the `.shorty_aliases` file.
 
 ### Search for an Alias
 
@@ -91,6 +74,45 @@ shorty search gs
 ```
 
 This will search for the alias `gs` in the `.shorty_aliases` file.
+
+### Edit an Alias
+
+To edit an existing alias:
+
+```bash
+shorty edit <alias> <new_command> [--note <new_note>] [--tags <new_tags>]
+```
+
+- `<alias>`: The alias you want to edit.
+- `<new_command>`: The new command that the alias should execute.
+- `--note <new_note>`: (Optional) Add or update the note for your alias.
+- `--tags <new_tags>`: (Optional) Add or update the tags for your alias.
+
+Example:
+
+```bash
+shorty edit gs "git status -sb" --note "Updated alias for git status"
+```
+
+This will update the alias `gs` to execute `git status -sb` with an updated note "Updated alias for git status" in the `.shorty_aliases` file.
+
+### Remove an Alias
+
+To remove an alias:
+
+```bash
+shorty remove <alias>
+```
+
+- `<alias>`: The alias you want to remove.
+
+Example:
+
+```bash
+shorty remove gs
+```
+
+This will remove the alias `gs` from the `.shorty_aliases` file.
 
 ## Contributing
 
