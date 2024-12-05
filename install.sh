@@ -1,6 +1,24 @@
 #!/bin/sh
 
+set -e
+
 echo "Starting installation..."
+
+error_exit() {
+    echo "$1" 1>&2
+    exit 1
+}
+
+GITHUB_REPO="https://github.com/anggasct/shorty"
+
+if [ -z "$1" ]; then
+    echo "No version specified. Fetching the latest version..."
+    SHORTY_URL="$GITHUB_REPO/releases/latest/download/"
+else
+    SHORTY_VERSION="$1"
+    echo "Version specified: $SHORTY_VERSION"
+    SHORTY_URL="$GITHUB_REPO/releases/download/$SHORTY_VERSION/"
+fi
 
 OS_TYPE="$(uname -s)"
 case "$OS_TYPE" in
@@ -13,14 +31,11 @@ case "$OS_TYPE" in
         FILE_NAME="shorty-macos"
         ;;
     *)
-        echo "Unsupported OS: $OS_TYPE"
-        exit 1
+        error_exit "Unsupported OS: $OS_TYPE"
         ;;
 esac
 
-GITHUB_REPO="https://github.com/anggasct/shorty"
-SHORTY_VERSION="v1.1.0"
-BINARY_URL="$GITHUB_REPO/releases/download/$SHORTY_VERSION/$FILE_NAME"
+BINARY_URL="${SHORTY_URL}${FILE_NAME}"
 
 echo "Downloading shorty from $BINARY_URL..."
 curl -L "$BINARY_URL" -o /tmp/shorty
@@ -31,10 +46,8 @@ fi
 
 echo "Installing shorty to /usr/local/bin..."
 chmod +x /tmp/shorty
-
 if ! sudo mv /tmp/shorty /usr/local/bin/shorty; then
-    echo "Failed to move shorty to /usr/local/bin. Please ensure you have sufficient permissions."
-    exit 1
+    error_exit "Failed to move shorty to /usr/local/bin. Please ensure you have sufficient permissions."
 fi
 
 if [ ! -f "$HOME/.shorty_aliases" ]; then
@@ -57,8 +70,7 @@ case "$SHELL_NAME" in
         CONFIG_FILE="$HOME/.bashrc"
         ;;
     *)
-        echo "Unsupported shell: $SHELL_NAME. Please manually add 'source ~/.shorty_aliases' to your shell configuration."
-        exit 1
+        error_exit "Unsupported shell: $SHELL_NAME. Please manually add 'source ~/.shorty_aliases' to your shell configuration."
         ;;
 esac
 
