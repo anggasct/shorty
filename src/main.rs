@@ -2,6 +2,7 @@ pub mod utils;
 
 mod commands {
     pub mod add;
+    pub mod edit;
     pub mod list;
     pub mod remove;
     pub mod search;
@@ -30,6 +31,15 @@ enum Commands {
         #[arg(short, long, num_args = 1.., use_value_delimiter = true, help = "Add tags to the alias")]
         tags: Vec<String>,
     },
+    /// Edit an existing alias
+    Edit {
+        alias: String,
+        new_command: String,
+        #[arg(short, long, help = "Add a new note to the alias")]
+        note: Option<String>,
+        #[arg(short, long, num_args = 1.., use_value_delimiter = true, help = "Add new tags to the alias")]
+        tags: Vec<String>,
+    },
     /// List all aliases
     #[command(alias = "ls")]
     List {
@@ -51,6 +61,9 @@ fn main() -> anyhow::Result<()> {
     match &cli.command {
         Commands::Add { alias, command, note, tags } => {
             commands::add::add_alias(alias, command, note, tags)?;
+        }
+        Commands::Edit { alias, new_command, note, tags } => {
+            commands::edit::edit_alias(alias, new_command, note, tags)?;
         }
         Commands::List { tag } => {
             commands::list::list_aliases(tag.as_deref())?;
