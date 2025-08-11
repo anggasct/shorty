@@ -10,61 +10,16 @@ Shorty is a comprehensive command-line tool designed to manage shell aliases wit
 
 ## Key Features
 
-### **Core Alias Management**
-
-- **Smart Alias Operations**: Add, edit, list, remove with intelligent validation
-- **Rich Metadata**: Notes and tags for better organization
-- **Advanced Search**: Keyword search with field-specific filtering and regex support
-- **Duplicate Detection**: Automatic detection and resolution of duplicate aliases
-
-### **Backup & Recovery System**
-
-- **Automatic Backups**: Auto-backup before destructive operations
-- **Named Backups**: Create custom-named backups for important milestones
-- **Easy Restoration**: Simple recovery from any backup point
-- **Backup Management**: List, clean, and manage backup history
-
-### **Validation & Health Checks**
-
-- **Command Validation**: Verify command availability in PATH
-- **Syntax Checking**: Detect invalid alias syntax and dangerous patterns
-- **Auto-Fix Suggestions**: Smart recommendations for fixing issues
-- **System Conflict Detection**: Prevent conflicts with system commands
-
-### **Interactive Terminal UI**
-
-- **Full-screen Interface**: Beautiful terminal UI with keyboard navigation
-- **Real-time Preview**: Live preview of alias commands
-- **Bulk Operations**: Select and manage multiple aliases at once
-- **Visual Command Browser**: Browse aliases with syntax highlighting
-
-### **Configuration System**
-
-- **TOML-based Config**: Human-readable configuration files
-- **Customizable Behavior**: Backup settings, display options, search preferences
-- **Profile Management**: Different settings for different workflows
-- **Dynamic Configuration**: Change settings without restart
-
-### **Statistics & Analytics**
-
-- **Usage Analytics**: Track alias usage patterns and frequency
-- **Command Analysis**: Analyze command types and complexity
-- **Visual Reports**: ASCII charts and comprehensive statistics
-- **Performance Insights**: Optimization recommendations
-
-### **Data Management**
-
-- **Multi-format Export**: JSON, CSV, and shell script formats
-- **Cross-shell Import**: Import from bash, zsh, fish configurations
-- **Template System**: Parameterized alias templates for common patterns
-- **Category Management**: Hierarchical organization with icons and colors
-
-### **Additional Features**
-
-- **Shell Integration**: Tab completion and shell setup commands
-- **Data Export/Import**: Multi-format support for data portability
-- **Cross-platform Compatibility**: Works on Linux, macOS, and Windows
-- **System Integration**: Easy installation and uninstallation
+- **Alias Management**: Add, edit, list, remove, and search aliases with notes and tags
+- **Backup & Restore**: Automatic backups with easy recovery
+- **Validation**: Check for duplicate aliases and validate commands
+- **Interactive UI**: Terminal interface with keyboard navigation
+- **Configuration**: TOML-based settings for customization
+- **Statistics**: View usage analytics and command insights
+- **Import/Export**: Support for JSON, CSV, and shell script formats
+- **Templates**: Create reusable alias templates with parameters
+- **Categories**: Organize aliases with hierarchical categories
+- **Shell Integration**: Tab completion for bash, zsh, and fish
 
 ## Quick Start
 
