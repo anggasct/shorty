@@ -4,7 +4,7 @@
 
 Shorty is a comprehensive command-line tool designed to manage shell aliases with advanced features like backup & restore, validation, template system, interactive UI, category management, and much more. Built with Rust for performance and reliability.
 
-[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/anggasct/shorty)
+[![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](https://github.com/anggasct/shorty)
 [![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -459,37 +459,34 @@ shorty category remove <name> [OPTIONS]
 
 - `--force`: Force removal even if category has children or aliases
 
-### **Shell Integration**
-
-#### **Install Shell Integration**
-
-```bash
-shorty install --shell <SHELL> [OPTIONS]
-```
-
-**Options:**
-
-- `--shell <SHELL>`: Target shell (bash, zsh, fish)
-- `--force`: Force reinstall even if already integrated
-
-**Examples:**
-
-```bash
-shorty install --shell bash
-shorty install --shell zsh --force
-```
-
 #### **Generate Completion Scripts**
 
 ```bash
 shorty completion --shell <SHELL>
 ```
 
+**Supported shells:** bash, zsh, fish
+
 **Examples:**
 
 ```bash
-shorty completion --shell bash > /etc/bash_completion.d/shorty
-shorty completion --shell zsh > /usr/local/share/zsh/site-functions/_shorty
+# Generate bash completion
+shorty completion --shell bash
+# Then install with:
+sudo cp shorty_completion.bash /etc/bash_completion.d/shorty
+
+# Generate zsh completion  
+shorty completion --shell zsh
+# Then install with:
+mkdir -p ~/.zsh/completions
+cp shorty_completion.zsh ~/.zsh/completions/_shorty
+# Add to ~/.zshrc: fpath=(~/.zsh/completions $fpath)
+# Then reload: autoload -U compinit && compinit
+
+# Generate fish completion
+shorty completion --shell fish  
+# Then install with:
+cp shorty_completion.fish ~/.config/fish/completions/shorty.fish
 ```
 
 ### **System Management**

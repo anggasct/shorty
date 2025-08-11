@@ -58,7 +58,7 @@ pub fn validate_aliases(fix_issues: bool) -> anyhow::Result<()> {
     for issue in &issues {
         issues_by_type
             .entry(issue.issue_type.clone())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(issue);
     }
 
@@ -73,7 +73,7 @@ pub fn validate_aliases(fix_issues: bool) -> anyhow::Result<()> {
                 issue.line_number, issue.alias_name, issue.description
             );
             if let Some(suggestion) = &issue.suggestion {
-                println!("    Suggestion: {}", suggestion);
+                println!("    Suggestion: {suggestion}");
             }
         }
         println!();
@@ -84,7 +84,7 @@ pub fn validate_aliases(fix_issues: bool) -> anyhow::Result<()> {
         auto_backup()?;
         let fixed_count = fix_aliases(&issues)?;
         if fixed_count > 0 {
-            println!("Fixed {} issue(s).", fixed_count);
+            println!("Fixed {fixed_count} issue(s).");
             println!("To apply the changes, please restart your terminal!");
         } else {
             println!("No issues could be automatically fixed.");
@@ -114,7 +114,7 @@ pub fn check_duplicates(remove_duplicates: bool) -> anyhow::Result<()> {
         if let Some(alias_name) = extract_alias_name(line) {
             seen_aliases
                 .entry(alias_name.clone())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(line_number);
         }
     }
@@ -168,13 +168,13 @@ pub fn check_duplicates(remove_duplicates: bool) -> anyhow::Result<()> {
             .collect::<Vec<_>>()
             .join("\n");
         if !final_content.is_empty() && !final_content.ends_with('\n') {
-            fs::write(&aliases_path, format!("{}\n", final_content))?;
+            fs::write(&aliases_path, format!("{final_content}\n"))?;
         } else {
             fs::write(&aliases_path, final_content)?;
         }
 
         let removed_count = lines.len() - new_lines.len();
-        println!("Removed {} duplicate(s).", removed_count);
+        println!("Removed {removed_count} duplicate(s).");
         println!("To apply the changes, please restart your terminal!");
     } else {
         println!("\nRun with --remove to automatically remove duplicates.");
@@ -219,7 +219,7 @@ fn validate_line(
                 line_number,
                 alias_name: alias_part.to_string(),
                 issue_type: IssueType::Duplicate,
-                description: format!("Duplicate of alias on line {}", previous_line),
+                description: format!("Duplicate of alias on line {previous_line}"),
                 suggestion: Some("Remove one of the duplicate aliases".to_string()),
             });
         }
@@ -239,12 +239,12 @@ fn validate_line(
 
         let first_word = command.split_whitespace().next().unwrap_or("");
         if !first_word.is_empty() && !command_exists(first_word) {
-            if is_system_command(&alias_part) {
+            if is_system_command(alias_part) {
                 return Some(AliasIssue {
                     line_number,
                     alias_name: alias_part.to_string(),
                     issue_type: IssueType::SystemConflict,
-                    description: format!("Conflicts with system command '{}'", alias_part),
+                    description: format!("Conflicts with system command '{alias_part}'"),
                     suggestion: Some("Consider using a different alias name".to_string()),
                 });
             }
@@ -253,7 +253,7 @@ fn validate_line(
                 line_number,
                 alias_name: alias_part.to_string(),
                 issue_type: IssueType::CommandNotFound,
-                description: format!("Command '{}' not found in PATH", first_word),
+                description: format!("Command '{first_word}' not found in PATH"),
                 suggestion: Some("Check if command is installed or fix typo".to_string()),
             });
         }
@@ -325,9 +325,9 @@ fn extract_command(command_part: &str) -> String {
 
     let mut command = command_part[..command_end].trim();
 
-    if command.starts_with('\'') && command.ends_with('\'') {
-        command = &command[1..command.len() - 1];
-    } else if command.starts_with('"') && command.ends_with('"') {
+    if (command.starts_with('\'') && command.ends_with('\''))
+        || (command.starts_with('"') && command.ends_with('"'))
+    {
         command = &command[1..command.len() - 1];
     }
 

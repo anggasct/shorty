@@ -246,14 +246,14 @@ pub fn show_plugin(name: &str) -> anyhow::Result<()> {
     if !plugin.hooks.is_empty() {
         println!("\nHooks:");
         for hook in &plugin.hooks {
-            println!("  • {}", hook);
+            println!("  • {hook}");
         }
     }
 
     if !plugin.config.is_empty() {
         println!("\nConfiguration:");
         for (key, value) in &plugin.config {
-            println!("  • {}: {}", key, value);
+            println!("  • {key}: {value}");
         }
     }
 
@@ -287,7 +287,7 @@ pub fn execute_plugin_command(
             )
         })?;
 
-    println!("Executing plugin command: {} {}", plugin_name, command);
+    println!("Executing plugin command: {plugin_name} {command}");
 
     let plugin_path = get_plugin_path(&plugin.name)?;
     let executable_path = plugin_path.join(&plugin.executable);
@@ -317,7 +317,7 @@ pub fn execute_plugin_command(
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     if !stdout.is_empty() {
-        println!("{}", stdout);
+        println!("{stdout}");
     }
 
     println!("Plugin command completed successfully");

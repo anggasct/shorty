@@ -88,7 +88,7 @@ pub fn export_aliases(format: ExportFormat, output_path: Option<&str>) -> anyhow
                 ExportFormat::Csv => "csv",
                 ExportFormat::Bash => "sh",
             };
-            PathBuf::from(format!("shorty_export_{}. {}", timestamp, extension))
+            PathBuf::from(format!("shorty_export_{timestamp}. {extension}"))
         }
     };
 
@@ -142,7 +142,10 @@ pub fn import_aliases(
         return Ok(());
     }
 
-    println!("Found {} aliases to import", aliases.len());
+    println!(
+        "Found {aliases_len} aliases to import",
+        aliases_len = aliases.len()
+    );
 
     if dry_run {
         println!("\nDRY RUN - Preview of aliases to import:");
@@ -171,7 +174,10 @@ pub fn import_aliases(
         .collect();
 
     if !conflicts.is_empty() {
-        println!("Found {} conflicting aliases:", conflicts.len());
+        println!(
+            "Found {conflicts_len} conflicting aliases:",
+            conflicts_len = conflicts.len()
+        );
         for alias in &conflicts {
             println!("  • {}", alias.name);
         }
@@ -236,23 +242,21 @@ fn parse_alias_line(line: &str) -> Option<AliasData> {
     let mut remaining = "";
 
     let rest = rest.trim();
-    if rest.starts_with('\'') {
-        if let Some(end_quote) = rest[1..].find('\'') {
-            command = rest[1..end_quote + 1].to_string();
+    if let Some(stripped) = rest.strip_prefix('\'') {
+        if let Some(end_quote) = stripped.find('\'') {
+            command = stripped[..end_quote].to_string();
             remaining = &rest[end_quote + 2..];
         }
-    } else if rest.starts_with('"') {
-        if let Some(end_quote) = rest[1..].find('"') {
-            command = rest[1..end_quote + 1].to_string();
+    } else if let Some(stripped) = rest.strip_prefix('"') {
+        if let Some(end_quote) = stripped.find('"') {
+            command = stripped[..end_quote].to_string();
             remaining = &rest[end_quote + 2..];
         }
+    } else if let Some(hash_pos) = rest.find('#') {
+        command = rest[..hash_pos].trim().to_string();
+        remaining = &rest[hash_pos..];
     } else {
-        if let Some(hash_pos) = rest.find('#') {
-            command = rest[..hash_pos].trim().to_string();
-            remaining = &rest[hash_pos..];
-        } else {
-            command = rest.to_string();
-        }
+        command = rest.to_string();
     }
 
     let mut note = None;
@@ -263,8 +267,8 @@ fn parse_alias_line(line: &str) -> Option<AliasData> {
         tags = tags_part.split(',').map(|s| s.trim().to_string()).collect();
 
         let note_part = remaining[..tags_pos].trim();
-        if note_part.starts_with('#') {
-            let note_text = note_part[1..].trim();
+        if let Some(stripped) = note_part.strip_prefix('#') {
+            let note_text = stripped.trim();
             if !note_text.is_empty() {
                 note = Some(note_text.to_string());
             }
@@ -486,10 +490,10 @@ fn import_from_bash() -> anyhow::Result<Vec<AliasData>> {
                         alias.shell_source = Some("bash".to_string());
                     }
                     aliases.extend(file_aliases);
-                    println!("  Found {} aliases", count);
+                    println!("  Found {count} aliases");
                 }
                 Err(e) => {
-                    println!("  Error reading file: {}", e);
+                    println!("  Error reading file: {e}");
                 }
             }
         }
@@ -515,10 +519,10 @@ fn import_from_zsh() -> anyhow::Result<Vec<AliasData>> {
                         alias.shell_source = Some("zsh".to_string());
                     }
                     aliases.extend(file_aliases);
-                    println!("  Found {} aliases", count);
+                    println!("  Found {count} aliases");
                 }
                 Err(e) => {
-                    println!("  Error reading file: {}", e);
+                    println!("  Error reading file: {e}");
                 }
             }
         }
@@ -550,10 +554,10 @@ fn import_from_fish() -> anyhow::Result<Vec<AliasData>> {
                             alias.shell_source = Some("fish".to_string());
                         }
                         aliases.extend(file_aliases);
-                        println!("  Found {} abbreviations", count);
+                        println!("  Found {count} abbreviations");
                     }
                     Err(e) => {
-                        println!("  Error reading file: {}", e);
+                        println!("  Error reading file: {e}");
                     }
                 }
             } else if file_path.is_dir() {

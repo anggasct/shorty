@@ -1,5 +1,12 @@
 # Changelog
 
+## [v1.4.0] - 2025-08-11
+
+### Improvements
+
+- **Improvements on interactive mode**
+- **Bug fixes and stability improvements**
+
 ## [v1.3.0] - 2025-08-09
 
 ### Major Release - Complete Feature Overhaul

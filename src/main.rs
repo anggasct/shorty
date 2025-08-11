@@ -103,12 +103,6 @@ enum Commands {
         #[command(subcommand)]
         action: CategoryAction,
     },
-    Install {
-        #[arg(long, help = "Target shell (bash, zsh, fish)")]
-        shell: String,
-        #[arg(long, help = "Force reinstall even if already integrated")]
-        force: bool,
-    },
     Completion {
         #[arg(long, help = "Target shell (bash, zsh, fish)")]
         shell: String,
@@ -449,10 +443,6 @@ fn main() -> anyhow::Result<()> {
                 commands::categories::group_aliases_by_category()?;
             }
         },
-        Commands::Install { shell, force } => {
-            let shell = shell.parse()?;
-            commands::shell_integration::install_shell_integration(shell, *force)?;
-        }
         Commands::Completion { shell } => {
             let shell = shell.parse()?;
             commands::shell_integration::generate_completion_script(shell)?;

@@ -35,7 +35,7 @@ pub fn uninstall() -> anyhow::Result<()> {
     }
 
     let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/sh".to_string());
-    let shell_name = shell.split('/').last().unwrap_or("sh");
+    let shell_name = shell.split('/').next_back().unwrap_or("sh");
     let config_file = match shell_name {
         "zsh" => dirs::home_dir()
             .expect("Could not find home directory")
@@ -44,7 +44,7 @@ pub fn uninstall() -> anyhow::Result<()> {
             .expect("Could not find home directory")
             .join(".bashrc"),
         _ => {
-            println!("Unsupported shell: {}. Please manually remove 'source ~/.shorty_aliases' from your shell configuration.", shell_name);
+            println!("Unsupported shell: {shell_name}. Please manually remove 'source ~/.shorty_aliases' from your shell configuration.");
             return Ok(());
         }
     };
@@ -60,7 +60,7 @@ pub fn uninstall() -> anyhow::Result<()> {
 
         let mut file = fs::File::create(&config_file)?;
         for line in new_lines {
-            writeln!(file, "{}", line)?;
+            writeln!(file, "{line}")?;
         }
         println!(
             "Removed 'source ~/.shorty_aliases' from {}.",

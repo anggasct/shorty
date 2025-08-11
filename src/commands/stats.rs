@@ -188,7 +188,7 @@ fn display_stats(stats: &AliasStats, file_stats: &FileStats) -> anyhow::Result<(
         sorted_tags.sort_by(|a, b| b.1.cmp(a.1));
 
         for (tag, count) in sorted_tags.iter().take(5) {
-            println!("  #{}: {}x", tag, count);
+            println!("  #{tag}: {count}x");
         }
     }
 
@@ -246,23 +246,21 @@ fn parse_alias_line(line: &str) -> Option<(String, String, Option<String>, Vec<S
     let mut remaining = "";
 
     let rest = rest.trim();
-    if rest.starts_with('\'') {
-        if let Some(end_quote) = rest[1..].find('\'') {
-            command = rest[1..end_quote + 1].to_string();
+    if let Some(stripped) = rest.strip_prefix('\'') {
+        if let Some(end_quote) = stripped.find('\'') {
+            command = stripped[..end_quote].to_string();
             remaining = &rest[end_quote + 2..];
         }
-    } else if rest.starts_with('"') {
-        if let Some(end_quote) = rest[1..].find('"') {
-            command = rest[1..end_quote + 1].to_string();
+    } else if let Some(stripped) = rest.strip_prefix('"') {
+        if let Some(end_quote) = stripped.find('"') {
+            command = stripped[..end_quote].to_string();
             remaining = &rest[end_quote + 2..];
         }
+    } else if let Some(hash_pos) = rest.find('#') {
+        command = rest[..hash_pos].trim().to_string();
+        remaining = &rest[hash_pos..];
     } else {
-        if let Some(hash_pos) = rest.find('#') {
-            command = rest[..hash_pos].trim().to_string();
-            remaining = &rest[hash_pos..];
-        } else {
-            command = rest.to_string();
-        }
+        command = rest.to_string();
     }
 
     let mut note = None;
@@ -273,8 +271,8 @@ fn parse_alias_line(line: &str) -> Option<(String, String, Option<String>, Vec<S
         tags = tags_part.split(',').map(|s| s.trim().to_string()).collect();
 
         let note_part = remaining[..tags_pos].trim();
-        if note_part.starts_with('#') {
-            let note_text = note_part[1..].trim();
+        if let Some(stripped) = note_part.strip_prefix('#') {
+            let note_text = stripped.trim();
             if !note_text.is_empty() {
                 note = Some(note_text.to_string());
             }

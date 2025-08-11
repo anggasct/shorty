@@ -78,7 +78,7 @@ pub fn init_sync(remote_url: Option<&str>, branch: Option<&str>) -> anyhow::Resu
     println!("Sync directory: {}", sync_dir.display());
 
     if let Some(url) = remote_url {
-        println!("Remote URL: {}", url);
+        println!("Remote URL: {url}");
         println!("Run 'shorty sync push' to upload your aliases");
     } else {
         println!("Add a remote with 'shorty sync remote add <url>' to enable cloud sync");
@@ -159,7 +159,7 @@ pub fn push_sync() -> anyhow::Result<()> {
     new_config.last_sync = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
     save_sync_config(&new_config)?;
 
-    println!("Successfully pushed {} changes", change_count);
+    println!("Successfully pushed {change_count} changes");
     println!("Synced to: {}", new_config.remote_url);
 
     Ok(())
@@ -294,7 +294,7 @@ pub fn sync_status() -> anyhow::Result<()> {
     } else {
         let changes = String::from_utf8_lossy(&status_output.stdout);
         let change_count = changes.lines().count();
-        println!("{} uncommitted changes", change_count);
+        println!("{change_count} uncommitted changes");
 
         println!("\nChanges:");
         for line in changes.lines().take(10) {
@@ -307,7 +307,7 @@ pub fn sync_status() -> anyhow::Result<()> {
                 "??" => "Untracked",
                 _ => "Changed",
             };
-            println!("  {} {}", status_desc, file);
+            println!("  {status_desc} {file}");
         }
 
         if change_count > 10 {
@@ -330,8 +330,8 @@ pub fn sync_status() -> anyhow::Result<()> {
                 if parts.len() == 2 {
                     let ahead = parts[0];
                     let behind = parts[1];
-                    println!("  {} commits ahead", ahead);
-                    println!("  {} commits behind", behind);
+                    println!("  {ahead} commits ahead");
+                    println!("  {behind} commits behind");
 
                     if ahead != "0" {
                         println!("Run 'shorty sync push' to upload your changes");
@@ -361,7 +361,7 @@ pub fn share_alias(alias_name: &str, method: &str) -> anyhow::Result<()> {
     let mut alias_line = None;
 
     for line in content.lines() {
-        if line.contains(&format!("alias {}=", alias_name)) {
+        if line.contains(&format!("alias {alias_name}=")) {
             alias_line = Some(line);
             break;
         }
@@ -384,13 +384,13 @@ pub fn share_alias(alias_name: &str, method: &str) -> anyhow::Result<()> {
                 Command::new("pbcopy").arg(alias_line).output()?
             } else {
                 Command::new("sh")
-                    .args(["-c", &format!("echo '{}' | {}", alias_line, copy_cmd)])
+                    .args(["-c", &format!("echo '{alias_line}' | {copy_cmd}")])
                     .output()?
             };
 
             if output.status.success() {
                 println!("Alias copied to clipboard:");
-                println!("{}", alias_line);
+                println!("{alias_line}");
             } else {
                 anyhow::bail!("Failed to copy to clipboard");
             }
@@ -399,11 +399,11 @@ pub fn share_alias(alias_name: &str, method: &str) -> anyhow::Result<()> {
             generate_qr_code(alias_line)?;
         }
         "file" => {
-            let share_file = format!("shorty_share_{}.sh", alias_name);
-            let content = format!("#!/bin/bash\n# Shared alias from Shorty\n{}\n", alias_line);
+            let share_file = format!("shorty_share_{alias_name}.sh");
+            let content = format!("#!/bin/bash\n# Shared alias from Shorty\n{alias_line}\n");
             fs::write(&share_file, content)?;
 
-            println!("Alias saved to: {}", share_file);
+            println!("Alias saved to: {share_file}");
             println!("Share this file or run it to add the alias");
         }
         _ => {
@@ -446,12 +446,12 @@ pub fn add_remote(url: &str, name: Option<&str>) -> anyhow::Result<()> {
                 );
             }
 
-            println!("Updated remote '{}': {}", remote_name, url);
+            println!("Updated remote '{remote_name}': {url}");
         } else {
             anyhow::bail!("Failed to add remote: {}", stderr);
         }
     } else {
-        println!("Added remote '{}': {}", remote_name, url);
+        println!("Added remote '{remote_name}': {url}");
     }
 
     if remote_name == "origin" {
@@ -615,7 +615,7 @@ fn generate_qr_code(text: &str) -> anyhow::Result<()> {
     println!("QR Code for alias:");
     println!("┌─────────────────────────────────────┐");
     println!("│  QR code would be generated here    │");
-    println!("│  Alias: {}                          │", text);
+    println!("│  Alias: {text}                          │");
     println!("│                                     │");
     println!("│  Use a proper QR code library for   │");
     println!("│  actual QR code generation          │");
@@ -623,7 +623,7 @@ fn generate_qr_code(text: &str) -> anyhow::Result<()> {
 
     let qr_file = "shorty_alias_qr.txt";
     fs::write(qr_file, text)?;
-    println!("Alias saved to: {}", qr_file);
+    println!("Alias saved to: {qr_file}");
 
     Ok(())
 }

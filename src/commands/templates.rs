@@ -54,8 +54,8 @@ pub fn add_template(
     templates.push(template);
     save_templates(&templates)?;
 
-    println!("Template '{}' added successfully", name);
-    println!("Pattern: {}", pattern);
+    println!("Template '{name}' added successfully");
+    println!("Pattern: {pattern}");
     if !template_params.is_empty() {
         println!("Parameters found:");
         for param in &template_params {
@@ -190,18 +190,15 @@ pub fn use_template(
         &final_alias_name,
         &command,
         &Some(format!("Generated from template: {}", template.name)),
-        &vec![template.category.clone(), "template".to_string()],
+        &[template.category.clone(), "template".to_string()],
     )?;
 
     let template_name = template.name.clone();
     template.usage_count += 1;
     save_templates(&templates)?;
 
-    println!(
-        "Alias '{}' created from template '{}'",
-        final_alias_name, template_name
-    );
-    println!("Command: {}", command);
+    println!("Alias '{final_alias_name}' created from template '{template_name}'");
+    println!("Command: {command}");
 
     Ok(())
 }
@@ -217,7 +214,7 @@ pub fn remove_template(name: &str) -> anyhow::Result<()> {
     }
 
     save_templates(&templates)?;
-    println!("Template '{}' removed successfully", name);
+    println!("Template '{name}' removed successfully");
 
     Ok(())
 }
@@ -253,11 +250,11 @@ pub fn show_template(name: &str) -> anyhow::Result<()> {
             println!("    {}", param.description);
 
             if let Some(default) = &param.default_value {
-                println!("    Default: {}", default);
+                println!("    Default: {default}");
             }
 
             if let Some(pattern) = &param.validation_pattern {
-                println!("    Pattern: {}", pattern);
+                println!("    Pattern: {pattern}");
             }
         }
 
@@ -379,7 +376,7 @@ fn extract_parameters_from_pattern(pattern: &str) -> Vec<TemplateParameter> {
         {
             parameters.push(TemplateParameter {
                 name: param_name.to_string(),
-                description: format!("Parameter for {}", param_name),
+                description: format!("Parameter for {param_name}"),
                 default_value: None,
                 required: true,
                 validation_pattern: None,

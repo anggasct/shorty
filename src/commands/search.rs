@@ -19,32 +19,27 @@ pub fn search_aliases(query: &str, search_in: Option<&str>, use_regex: bool) -> 
                 return false;
             }
 
-            let matches = if let Some(ref regex) = regex {
+            if let Some(ref regex) = regex {
                 regex.is_match(line)
             } else if let Some(field) = search_in {
                 search_in_field(line, query, field)
             } else {
                 line.contains(query)
-            };
-
-            matches
+            }
         })
         .collect();
 
     if results.is_empty() {
         let search_desc = match search_in {
-            Some(field) => format!(" in field '{}'", field),
+            Some(field) => format!(" in field '{field}'"),
             None => String::new(),
         };
         let regex_desc = if use_regex { " (regex)" } else { "" };
-        println!(
-            "No aliases found matching: '{}'{}{}",
-            query, search_desc, regex_desc
-        );
+        println!("No aliases found matching: '{query}'{search_desc}{regex_desc}");
     } else {
         println!("Found {} matching alias(es):", results.len());
         for alias in results {
-            println!("{}", alias);
+            println!("{alias}");
         }
     }
 
@@ -93,9 +88,9 @@ fn search_in_field(line: &str, query: &str, field: &str) -> bool {
 fn extract_command_from_line(command_part: &str) -> String {
     let mut command = command_part.trim();
 
-    if command.starts_with('\'') && command.ends_with('\'') {
-        command = &command[1..command.len() - 1];
-    } else if command.starts_with('"') && command.ends_with('"') {
+    if (command.starts_with('\'') && command.ends_with('\''))
+        || (command.starts_with('"') && command.ends_with('"'))
+    {
         command = &command[1..command.len() - 1];
     }
 

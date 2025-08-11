@@ -6,7 +6,7 @@ pub fn remove_alias(alias: &str) -> anyhow::Result<()> {
     let contents = fs::read_to_string(&aliases_path)?;
     let mut new_contents: String = contents
         .lines()
-        .filter(|line| !line.starts_with(&format!("alias {}=", alias)))
+        .filter(|line| !line.starts_with(&format!("alias {alias}=")))
         .collect::<Vec<_>>()
         .join("\n");
 
@@ -15,7 +15,7 @@ pub fn remove_alias(alias: &str) -> anyhow::Result<()> {
     }
 
     fs::write(&aliases_path, new_contents)?;
-    println!("Removed alias: {}", alias);
+    println!("Removed alias: {alias}");
 
     Ok(())
 }
