@@ -5,11 +5,11 @@ on:
       - 'v*'
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
@@ -18,21 +18,38 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: target/release/shorty-linux
-        token: ${{ secrets.GH_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
 
-  build-mac:
+  build-macos:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
         target: x86_64-apple-darwin
     - run: cargo build --release && strip target/release/shorty && mv target/release/shorty target/release/shorty-macos
-    - name: Release Mac
+    - name: Release macOS
       uses: softprops/action-gh-release@v1
       with:
         files: target/release/shorty-macos
-        token: ${{ secrets.GH_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: x86_64-pc-windows-msvc
+    - run: cargo build --release
+    - run: mv target/release/shorty.exe target/release/shorty-windows.exe
+    - name: Release Windows
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/release/shorty-windows.exe
+        token: ${{ secrets.GITHUB_TOKEN }}
 

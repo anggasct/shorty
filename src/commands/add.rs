@@ -1,8 +1,8 @@
+use crate::commands::remove::remove_alias;
+use crate::utils::get_aliases_path;
 use std::fs;
 use std::io::{self, BufRead, Write};
 use std::path::PathBuf;
-use crate::utils::get_aliases_path;
-use crate::commands::remove::remove_alias;
 
 pub fn add_alias(
     alias: &str,
@@ -13,10 +13,7 @@ pub fn add_alias(
     let aliases_path = get_aliases_path();
 
     if alias_exists(&aliases_path, alias)? {
-        print!(
-            "Warning: Alias '{}' already exists. Do you want to overwrite it? (y/n): ",
-            alias
-        );
+        print!("Warning: Alias '{alias}' already exists. Do you want to overwrite it? (y/n): ");
         io::stdout().flush()?;
         let mut input = String::new();
         io::stdin().read_line(&mut input)?;
@@ -39,18 +36,11 @@ pub fn add_alias(
         format!(" #tags:{}", tags.join(","))
     };
 
-    let note_comment = note
-        .as_ref()
-        .map(|n| format!(" # {}", n))
-        .unwrap_or_default();
+    let note_comment = note.as_ref().map(|n| format!(" # {n}")).unwrap_or_default();
 
-    writeln!(
-        file,
-        "alias {}='{}'{}{}",
-        alias, command, note_comment, tags_str
-    )?;
+    writeln!(file, "alias {alias}='{command}'{note_comment}{tags_str}")?;
 
-    println!("Added alias: {} -> {}", alias, command);
+    println!("Added alias: {alias} -> {command}");
     println!("To apply the changes, please restart your terminal!");
 
     Ok(())
@@ -59,7 +49,7 @@ pub fn add_alias(
 fn alias_exists(aliases_path: &PathBuf, alias: &str) -> io::Result<bool> {
     if let Ok(file) = fs::File::open(aliases_path) {
         for line in io::BufReader::new(file).lines().map_while(Result::ok) {
-            if line.starts_with(&format!("alias {}=", alias)) {
+            if line.starts_with(&format!("alias {alias}=")) {
                 return Ok(true);
             }
         }

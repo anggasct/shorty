@@ -30,6 +30,10 @@ case "$OS_TYPE" in
         echo "macOS detected."
         FILE_NAME="shorty-macos"
         ;;
+    MINGW*|MSYS*|CYGWIN*)
+        echo "Windows detected."
+        FILE_NAME="shorty-windows.exe"
+        ;;
     *)
         error_exit "Unsupported OS: $OS_TYPE"
         ;;
@@ -38,7 +42,14 @@ esac
 BINARY_URL="${SHORTY_URL}${FILE_NAME}"
 
 echo "Downloading shorty from $BINARY_URL..."
-curl -L "$BINARY_URL" -o /tmp/shorty
+if command -v curl >/dev/null 2>&1; then
+    curl -L "$BINARY_URL" -o /tmp/shorty
+elif command -v wget >/dev/null 2>&1; then
+    wget "$BINARY_URL" -O /tmp/shorty
+else
+    error_exit "Neither curl nor wget found. Please install one of them."
+fi
+
 if [ $? -ne 0 ]; then
     echo "Failed to download shorty. Please check your internet connection or the URL."
     exit 1
@@ -50,11 +61,12 @@ if ! sudo mv /tmp/shorty /usr/local/bin/shorty; then
     error_exit "Failed to move shorty to /usr/local/bin. Please ensure you have sufficient permissions."
 fi
 
-if [ ! -f "$HOME/.shorty_aliases" ]; then
-    touch "$HOME/.shorty_aliases"
-    echo "Created ~/.shorty_aliases for storing aliases."
+# Legacy migration: check for old aliases file and let shorty handle migration
+if [ -f "$HOME/.shorty_aliases" ]; then
+    echo "Found legacy aliases file. Shorty will automatically migrate it on first run."
 fi
 
+# Determine shell and config file
 if [ -n "$SUDO_USER" ]; then
     USER_SHELL=$(getent passwd "$SUDO_USER" | cut -d: -f7)
 else
@@ -65,22 +77,43 @@ SHELL_NAME=$(basename "$USER_SHELL")
 case "$SHELL_NAME" in
     zsh)
         CONFIG_FILE="$HOME/.zshrc"
+        SOURCE_LINE="source ~/.shorty/aliases"
         ;;
     bash)
         CONFIG_FILE="$HOME/.bashrc"
+        SOURCE_LINE="source ~/.shorty/aliases"
+        ;;
+    fish)
+        CONFIG_FILE="$HOME/.config/fish/config.fish"
+        SOURCE_LINE="test -f ~/.shorty/aliases; and source ~/.shorty/aliases"
         ;;
     *)
-        error_exit "Unsupported shell: $SHELL_NAME. Please manually add 'source ~/.shorty_aliases' to your shell configuration."
+        echo "Unsupported shell: $SHELL_NAME. Please manually add 'source ~/.shorty/aliases' to your shell configuration."
+        echo "Installation complete! Run shorty commands to initialize configuration."
+        exit 0
         ;;
 esac
 
-if ! grep -q "source ~/.shorty_aliases" "$CONFIG_FILE"; then
-    echo "\n# Load aliases from shorty" >> "$CONFIG_FILE"
-    echo "source ~/.shorty_aliases" >> "$CONFIG_FILE"
-    echo "Added 'source ~/.shorty_aliases' to $CONFIG_FILE"
-else
-    echo "$CONFIG_FILE already contains the source command."
+# Add sourcing to shell config if not already present
+if [ ! -f "$CONFIG_FILE" ]; then
+    touch "$CONFIG_FILE"
 fi
 
+if ! grep -q "source ~/.shorty/aliases\|\.shorty/aliases" "$CONFIG_FILE"; then
+    echo "" >> "$CONFIG_FILE"
+    echo "# Load aliases from shorty" >> "$CONFIG_FILE"
+    echo "$SOURCE_LINE" >> "$CONFIG_FILE"
+    echo "Added alias sourcing to $CONFIG_FILE"
+else
+    echo "$CONFIG_FILE already contains shorty alias sourcing."
+fi
+
+echo ""
 echo "Installation complete!"
-echo "Run 'source $CONFIG_FILE' or restart your terminal to apply changes."
+echo ""
+echo "Next steps:"
+echo "1. Run 'source $CONFIG_FILE' or restart your terminal"
+echo "2. Run 'shorty --help' to see available commands"
+echo "3. Run 'shorty add <alias> <command>' to create your first alias"
+echo ""
+echo "Note: Configuration files and directories will be created automatically in ~/.shorty/ on first use."

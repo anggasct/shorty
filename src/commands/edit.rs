@@ -1,6 +1,6 @@
+use crate::utils::get_aliases_path;
 use std::fs;
 use std::io::Write;
-use crate::utils::get_aliases_path;
 
 pub fn edit_alias(
     alias: &str,
@@ -15,49 +15,55 @@ pub fn edit_alias(
     let mut alias_found = false;
 
     for line in contents.lines() {
-        if line.starts_with(&format!("alias {}=", alias)) {
+        if line.starts_with(&format!("alias {alias}=")) {
             alias_found = true;
 
-            let existing_note = line.split('#').nth(1).map(|s| s.trim().to_string()).unwrap_or_default();
-            let existing_tags = line.split('#').nth(2).map(|s| s.trim().to_string()).unwrap_or_default();
+            let existing_note = line
+                .split('#')
+                .nth(1)
+                .map(|s| s.trim().to_string())
+                .unwrap_or_default();
+            let existing_tags = line
+                .split('#')
+                .nth(2)
+                .map(|s| s.trim().to_string())
+                .unwrap_or_default();
 
             let note_comment = if let Some(note) = new_note {
-                format!(" # {}", note)
+                format!(" # {note}")
+            } else if !existing_note.is_empty() {
+                format!(" # {existing_note}")
             } else {
-                if !existing_note.is_empty() {
-                    format!(" # {}", existing_note)
-                } else {
-                    String::new()
-                }
+                String::new()
             };
 
             let tags_str = if !new_tags.is_empty() {
                 format!(" #tags:{}", new_tags.join(","))
+            } else if !existing_tags.is_empty() {
+                format!(" #tags:{existing_tags}")
             } else {
-                if !existing_tags.is_empty() {
-                    format!(" #tags:{}", existing_tags)
-                } else {
-                    String::new()
-                }
+                String::new()
             };
 
-            new_contents.push(format!("alias {}='{}'{}{}", alias, new_command, note_comment, tags_str));
+            new_contents.push(format!(
+                "alias {alias}='{new_command}'{note_comment}{tags_str}"
+            ));
         } else {
             new_contents.push(line.to_string());
         }
     }
 
     if !alias_found {
-        println!("Alias '{}' not found.", alias);
+        println!("Alias '{alias}' not found.");
         return Ok(());
     }
 
     let mut file = fs::File::create(&aliases_path)?;
     for line in new_contents {
-        writeln!(file, "{}", line)?;
+        writeln!(file, "{line}")?;
     }
 
-    println!("Edited alias: {} -> {}", alias, new_command);
+    println!("Edited alias: {alias} -> {new_command}");
     println!("To apply the changes, please restart your terminal!");
 
     Ok(())

@@ -1,5 +1,5 @@
-use std::fs;
 use crate::utils::get_aliases_path;
+use std::fs;
 
 pub fn remove_alias(alias: &str) -> anyhow::Result<()> {
     let aliases_path = get_aliases_path();
@@ -19,4 +19,3 @@ pub fn remove_alias(alias: &str) -> anyhow::Result<()> {
 
     Ok(())
 }
-
