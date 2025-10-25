@@ -1,8 +1,8 @@
 # Shorty
 
-**A powerful, feature-rich shell alias manager that transforms your command-line workflow.**
+**A shell alias manager for organizing and maintaining command-line aliases.**
 
-Shorty is a comprehensive command-line tool designed to manage shell aliases with advanced features like backup & restore, validation, template system, interactive UI, category management, and much more. Built with Rust for performance and reliability.
+Shorty provides tools for managing shell aliases, including backup & restore, template system, interactive terminal UI, category organization, and import/export capabilities. Written in Rust.
 
 [![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](https://github.com/anggasct/shorty)
 [![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)

@@ -1,7 +1,14 @@
 [package]
 name = "shorty"
-version = "1.4.0"
+version = "1.5.0"
 edition = "2021"
+description = "A shell alias manager for organizing and maintaining command-line aliases"
+license = "MIT"
+repository = "https://github.com/anggasct/shorty"
+homepage = "https://github.com/anggasct/shorty"
+keywords = ["alias", "shell", "cli", "terminal", "productivity"]
+categories = ["command-line-utilities"]
+authors = ["anggasct"]
 
 [dependencies]
 clap = { version = "4.3", features = ["derive"] }
@@ -18,4 +25,7 @@ crossterm = "0.28"
 ratatui = "0.29"
 unicode-width = "0.2"
 whoami = "1.4"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+tokio = { version = "1", features = ["rt"] }
+sha2 = "0.10"
 

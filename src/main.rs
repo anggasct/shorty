@@ -1,4 +1,5 @@
 pub mod utils;
+pub mod updater;
 
 mod commands {
     pub mod add;
@@ -17,6 +18,7 @@ mod commands {
     pub mod sync;
     pub mod templates;
     pub mod uninstall;
+    pub mod update;
     pub mod validate;
 }
 
@@ -125,6 +127,12 @@ enum Commands {
         action: PluginAction,
     },
     Uninstall,
+    Update {
+        #[arg(long, help = "Only check for updates without installing")]
+        check: bool,
+        #[arg(long, help = "Force reinstall current version")]
+        force: bool,
+    },
 }
 
 #[derive(Subcommand)]
@@ -282,6 +290,12 @@ enum PluginAction {
 }
 
 fn main() -> anyhow::Result<()> {
+    if let Ok(config) = commands::config::Config::load() {
+        if config.update.enabled {
+            let _ = updater::checker::check_for_updates_background(config.update.check_interval_hours);
+        }
+    }
+
     let cli = Cli::parse();
 
     match &cli.command {
@@ -504,6 +518,15 @@ fn main() -> anyhow::Result<()> {
         },
         Commands::Uninstall => {
             commands::uninstall::uninstall()?;
+        }
+        Commands::Update { check, force } => {
+            if *check {
+                commands::update::run_check_only()?;
+            } else if *force {
+                commands::update::run_force_update()?;
+            } else {
+                commands::update::run_update(false, false)?;
+            }
         }
     }
 

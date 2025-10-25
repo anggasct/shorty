@@ -7,6 +7,7 @@ pub struct Config {
     pub display: DisplayConfig,
     pub search: SearchConfig,
     pub aliases: AliasConfig,
+    pub update: UpdateConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -39,6 +40,15 @@ pub struct AliasConfig {
     pub validate_on_add: bool,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpdateConfig {
+    pub enabled: bool,
+    pub check_interval_hours: i64,
+    pub auto_download: bool,
+    pub backup_old_versions: bool,
+    pub max_backups: usize,
+}
+
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -63,6 +73,13 @@ impl Default for Config {
                 file_path: "~/.shorty/aliases".to_string(),
                 sort_on_add: false,
                 validate_on_add: true,
+            },
+            update: UpdateConfig {
+                enabled: true,
+                check_interval_hours: 24,
+                auto_download: true,
+                backup_old_versions: true,
+                max_backups: 3,
             },
         }
     }
@@ -116,6 +133,12 @@ impl Config {
             "aliases.sort_on_add" => Some(self.aliases.sort_on_add.to_string()),
             "aliases.validate_on_add" => Some(self.aliases.validate_on_add.to_string()),
 
+            "update.enabled" => Some(self.update.enabled.to_string()),
+            "update.check_interval_hours" => Some(self.update.check_interval_hours.to_string()),
+            "update.auto_download" => Some(self.update.auto_download.to_string()),
+            "update.backup_old_versions" => Some(self.update.backup_old_versions.to_string()),
+            "update.max_backups" => Some(self.update.max_backups.to_string()),
+
             _ => None,
         }
     }
@@ -166,6 +189,22 @@ impl Config {
             }
             "aliases.validate_on_add" => {
                 self.aliases.validate_on_add = parse_bool(value)?;
+            }
+
+            "update.enabled" => {
+                self.update.enabled = parse_bool(value)?;
+            }
+            "update.check_interval_hours" => {
+                self.update.check_interval_hours = value.parse()?;
+            }
+            "update.auto_download" => {
+                self.update.auto_download = parse_bool(value)?;
+            }
+            "update.backup_old_versions" => {
+                self.update.backup_old_versions = parse_bool(value)?;
+            }
+            "update.max_backups" => {
+                self.update.max_backups = value.parse()?;
             }
 
             _ => {
@@ -234,6 +273,26 @@ impl Config {
                 "aliases.validate_on_add".to_string(),
                 "Validate aliases when adding new ones".to_string(),
             ),
+            (
+                "update.enabled".to_string(),
+                "Enable automatic update checking".to_string(),
+            ),
+            (
+                "update.check_interval_hours".to_string(),
+                "Hours between update checks".to_string(),
+            ),
+            (
+                "update.auto_download".to_string(),
+                "Automatically download updates (still requires confirmation)".to_string(),
+            ),
+            (
+                "update.backup_old_versions".to_string(),
+                "Backup old binary before updating".to_string(),
+            ),
+            (
+                "update.max_backups".to_string(),
+                "Maximum number of binary backups to keep".to_string(),
+            ),
         ]
     }
 }
@@ -301,6 +360,13 @@ pub fn list_config() -> anyhow::Result<()> {
     println!("  file_path           = {}", config.aliases.file_path);
     println!("  sort_on_add         = {}", config.aliases.sort_on_add);
     println!("  validate_on_add     = {}", config.aliases.validate_on_add);
+
+    println!("\nUpdate:");
+    println!("  enabled             = {}", config.update.enabled);
+    println!("  check_interval_hours= {}", config.update.check_interval_hours);
+    println!("  auto_download       = {}", config.update.auto_download);
+    println!("  backup_old_versions = {}", config.update.backup_old_versions);
+    println!("  max_backups         = {}", config.update.max_backups);
 
     println!("\nUse 'shorty config set <key> <value>' to change settings");
 
