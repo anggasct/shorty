@@ -25,6 +25,14 @@ pub fn add_alias(
         }
     }
 
+    if aliases_path.exists() {
+        let content = fs::read(&aliases_path)?;
+        if !content.is_empty() && !content.ends_with(&[b'\n']) {
+            let mut file = fs::OpenOptions::new().append(true).open(&aliases_path)?;
+            writeln!(file)?;
+        }
+    }
+
     let mut file = fs::OpenOptions::new()
         .create(true)
         .append(true)
